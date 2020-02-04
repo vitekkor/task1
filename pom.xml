@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>task1</artifactId>
+    <version>1.0.0</version>
+
+    <name>task1</name>
+
+    <repositories>
+        <repository>
+            <id>bintray-vorpal-research-kotlin-maven</id>
+            <name>vorpal-research-kotlin-maven</name>
+            <url>http://dl.bintray.com/vorpal-research/kotlin-maven</url>
+        </repository>
+    </repositories>
+
+    <parent>
+        <groupId>ru.spbstu</groupId>
+        <artifactId>task1</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>task1-runner-plugin</artifactId>
+                <groupId>org.jetbrains.research</groupId>
+                <version>1.0.0</version>
+                <configuration>
+                    <packages>
+                        <package>task1</package>
+                    </packages>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
