@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>task1</artifactId>
-    <version>1.0.0</version>
+    <artifactId>kfirst</artifactId>
+    <version>19.0.2</version>
 
-    <name>task1</name>
+    <name>kfirst</name>
 
     <repositories>
         <repository>
@@ -19,16 +19,16 @@
 
     <parent>
         <groupId>ru.spbstu</groupId>
-        <artifactId>task1</artifactId>
-        <version>1.0.0</version>
+        <artifactId>kfirst-bom</artifactId>
+        <version>19.0.1</version>
     </parent>
 
     <build>
         <plugins>
             <plugin>
-                <artifactId>task1-runner-plugin</artifactId>
+                <artifactId>kfirst-runner-plugin</artifactId>
                 <groupId>org.jetbrains.research</groupId>
-                <version>1.0.0</version>
+                <version>19.0.2</version>
                 <configuration>
                     <packages>
                         <package>task1</package>
