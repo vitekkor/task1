@@ -67,7 +67,35 @@ class TrainTimeTable(val baseStationName: String) {
      * @param stop начальная, промежуточная или конечная станция
      * @return true, если поезду была добавлена новая остановка, false, если было изменено время остановки на старой
      */
-    fun addStop(train: String, stop: Stop): Boolean = TODO()
+    fun addStop(train: String, stop: Stop): Boolean {
+        val newStops = listOfTrains.getValue(train).stops.toMutableList()
+        when (stop.name) {
+            baseStationName -> {
+                listOfTrains.getValue(train).stops.toMutableList()[0] = stop
+                return false
+            }
+            listOfTrains.getValue(train).stops.last().name -> {
+                newStops.dropLast(1)
+                newStops.add(stop)
+                listOfTrains[train] = Train(train, newStops)
+                return false
+            }
+        }
+        require(stop.time in listOfTrains.getValue(train).stops[0].time..listOfTrains.getValue(train).stops.last().time)
+        val specialStop = listOfTrains.getValue(train).specificStation(stop.name)
+        if (specialStop.time != Time(-1, -1)) {
+            newStops.remove(specialStop)
+            newStops.add(stop)
+            listOfTrains[train] = Train(train, newStops)
+            return false
+        }
+        for (otherStop in listOfTrains.getValue(train).stops) {
+            if (otherStop.time == stop.time) if (stop.name != otherStop.name) throw IllegalArgumentException() else return false
+        }
+        newStops.add(stop)
+        listOfTrains[train] = Train(train, newStops)
+        return true
+    }
 
     /**
      * Удалить одну из промежуточных остановок.
@@ -79,7 +107,16 @@ class TrainTimeTable(val baseStationName: String) {
      * @param stopName название промежуточной остановки
      * @return true, если удаление успешно
      */
-    fun removeStop(train: String, stopName: String): Boolean = TODO()
+    fun removeStop(train: String, stopName: String): Boolean {
+        val stop = listOfTrains.getValue(train).specificStation(stopName)
+        return if (stop.time != Time(-1, -1)
+            && listOfTrains.getValue(train).stops[0].name == stopName
+            && listOfTrains.getValue(train).stops.last().name == stopName
+        ) {
+            listOfTrains.getValue(train).stops.toMutableList().remove(stop)
+            true
+        } else false
+    }
 
     /**
      * Вернуть список всех поездов, упорядоченный по времени отправления с baseStationName
@@ -88,7 +125,7 @@ class TrainTimeTable(val baseStationName: String) {
         val res = listOfTrains.values.toMutableList()
         val low = 0
         val high = listOfTrains.size - 1
-        quickSort(res, low, high)
+        quickSort(res, low, high, baseStationName)
         return res
     }
 
@@ -100,12 +137,16 @@ class TrainTimeTable(val baseStationName: String) {
     fun trains(currentTime: Time, destinationName: String): List<Train> {
         val result = mutableListOf<Train>()
         for ((_, train) in listOfTrains) {
-            val condition1 = train.specificStation(baseStationName).time >= currentTime
+            val condition1 = train.stops.elementAt(0).time >= currentTime
             val condition2 = train.specificStation(destinationName).time != Time(-1, -1)
             if (condition1 && condition2) result.add(train)
         }
-        quickSort(result, 0, result.size - 1)
+        quickSort(result, 0, result.size - 1, destinationName)
         return result
+    }
+
+    fun getTrain(trainName: String): Train {
+        return listOfTrains.getValue(trainName)
     }
 
     /**
@@ -141,20 +182,20 @@ data class Train(val name: String, val stops: List<Stop>) {
     fun specificStation(name: String): Stop = stops.find { it.name == name } ?: Stop("", Time(-1, -1))
 }
 
-private fun quickSort(array: MutableList<Train>, low: Int, high: Int) {
+private fun quickSort(array: MutableList<Train>, low: Int, high: Int, stop: String) {
     if (array.isEmpty()) return  //завершить выполнение если длина массива равна 0
     if (low >= high) return  //завершить выполнение если уже нечего делить
     // выбрать опорный элемент
     val middle = low + (high - low) / 2
-    val opora = array[middle].stops[0].time
+    val opora = array[middle].specificStation(stop).time
     // разделить на подмассивы, который больше и меньше опорного элемента
     var i = low
     var j = high
     while (i <= j) {
-        while (array[i].stops[0].time < opora) {
+        while (array[i].specificStation(stop).time < opora) {
             i++
         }
-        while (array[j].stops[0].time > opora) {
+        while (array[j].specificStation(stop).time > opora) {
             j--
         }
         if (i <= j) { //меняем местами
@@ -166,6 +207,6 @@ private fun quickSort(array: MutableList<Train>, low: Int, high: Int) {
         }
     }
     // вызов рекурсии для сортировки левой и правой части
-    if (low < j) quickSort(array, low, j)
-    if (high > i) quickSort(array, i, high)
+    if (low < j) quickSort(array, low, j, stop)
+    if (high > i) quickSort(array, i, high, stop)
 }
