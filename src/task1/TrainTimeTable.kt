@@ -72,11 +72,13 @@ class TrainTimeTable(val baseStationName: String) {
         when (stop.name) {
             baseStationName -> {
                 listOfTrains.getValue(train).stops.toMutableList()[0] = stop
+                newStops.sortBy { it.time }
                 return false
             }
             listOfTrains.getValue(train).stops.last().name -> {
                 newStops.dropLast(1)
                 newStops.add(stop)
+                newStops.sortBy { it.time }
                 listOfTrains[train] = Train(train, newStops)
                 return false
             }
@@ -86,6 +88,7 @@ class TrainTimeTable(val baseStationName: String) {
         if (specialStop.time != Time(-1, -1)) {
             newStops.remove(specialStop)
             newStops.add(stop)
+            newStops.sortBy { it.time }
             listOfTrains[train] = Train(train, newStops)
             return false
         }
@@ -93,6 +96,7 @@ class TrainTimeTable(val baseStationName: String) {
             if (otherStop.time == stop.time) if (stop.name != otherStop.name) throw IllegalArgumentException() else return false
         }
         newStops.add(stop)
+        newStops.sortBy { it.time }
         listOfTrains[train] = Train(train, newStops)
         return true
     }
@@ -113,7 +117,9 @@ class TrainTimeTable(val baseStationName: String) {
             && listOfTrains.getValue(train).stops[0].name == stopName
             && listOfTrains.getValue(train).stops.last().name == stopName
         ) {
-            listOfTrains.getValue(train).stops.toMutableList().remove(stop)
+            val newStops = listOfTrains.getValue(train).stops.toMutableList()
+            newStops.remove(stop)
+            listOfTrains[train] = Train(train, newStops)
             true
         } else false
     }
@@ -154,7 +160,15 @@ class TrainTimeTable(val baseStationName: String) {
      * Расписания считаются одинаковыми, если содержат одинаковый набор поездов,
      * и поезда с тем же именем останавливаются на одинаковых станциях в одинаковое время.
      */
-    override fun equals(other: Any?): Boolean = TODO()
+    override fun equals(other: Any?): Boolean = other is TrainTimeTable && hashCode() == other.hashCode()
+
+    override fun hashCode(): Int {
+        var result = 1
+        for ((name, train) in listOfTrains) {
+            result += name.hashCode() + train.stops.sumBy { it.hashCode() }
+        }
+        return result
+    }
 }
 
 /**
@@ -170,7 +184,10 @@ data class Time(val hour: Int, val minute: Int) : Comparable<Time> {
 /**
  * Остановка (название, время прибытия)
  */
-data class Stop(val name: String, val time: Time)
+data class Stop(val name: String, val time: Time) {
+    override fun equals(other: Any?): Boolean = other is Stop && hashCode() == other.hashCode()
+    override fun hashCode(): Int = name.hashCode() + time.minute + time.hour * 60
+}
 
 /**
  * Поезд (имя, список остановок, упорядоченный по времени).
