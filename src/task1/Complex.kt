@@ -48,10 +48,11 @@ class Complex(val re: Double, val im: Double) {
     /**
      * Деление
      */
-    operator fun div(other: Complex): Complex = Complex(
-        (re * other.re + im * other.im) / (sqr(other.re) + sqr(other.im)),
-        (im * other.re - re * other.im) / (sqr(other.re) + sqr(other.im))
-    )
+    operator fun div(other: Complex): Complex =
+        Complex(
+            (re * other.re + im * other.im) / (sqr(other.re) + sqr(other.im)),
+            (im * other.re - re * other.im) / (sqr(other.re) + sqr(other.im))
+        )
 
     private fun sqr(num: Double): Double = num * num
 
@@ -66,7 +67,6 @@ class Complex(val re: Double, val im: Double) {
         result = 31 * result + im.toBits().toInt()
         return result
     }
-
 
     /**
      * Преобразование в строку

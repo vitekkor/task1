@@ -47,6 +47,8 @@ internal class ComplexTest {
     fun times() {
         assertApproxEquals(Complex("11-8i"), Complex("2.6+0.8i") * Complex("3-4i"), 1e-10)
         assertApproxEquals(Complex("11+2i"), Complex("1+2i") * Complex("3-4i"), 1e-10)
+        assertApproxEquals(Complex("8-4i"), Complex("1+2i") * Complex("0-4i"), 1e-10)
+        assertApproxEquals(Complex("0+0i"), Complex("0+0i") * Complex("0-4i"), 1e-10)
     }
 
     @Test
